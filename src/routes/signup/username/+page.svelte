@@ -73,13 +73,26 @@
   
   <AuthCheck>
     {#if $userData?.username}
+      <div class="flex w-full flex-row flex-nowrap justify-between">
+        <div class="w-32 flex justify-start">
+            {#if $user}
+                <a href="/signup" class="btn btn-accent" on:click={() => signOut(auth)}>Back</a>
+            {:else}
+                <button class="btn btn-primary btn-disabled">Sign out</button>
+            {/if}
+        </div>
+        <h2 class="card-title w-fit">Username</h2>
+        <div class="w-32 flex justify-end">
+            <a href="/signup/photo" class="btn btn-primary" class:btn-disabled={!$user}>Next</a>
+        </div>
+      </div>
+  
         <p class="text-lg">
             Your username is <span class="text-success font-bold"
             >@{$userData.username}</span
             >
         </p>
         <p class="text-sm">(Usernames cannot be changed)</p>
-        <a class="btn btn-primary" href="/signup/photo">Upload Profile Image</a>
     {:else}
       <h2>Username</h2>
       <form class="w-2/5" on:submit|preventDefault={confirmUsername}>

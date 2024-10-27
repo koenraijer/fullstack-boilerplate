@@ -1,13 +1,11 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import {auth, user, userData} from '$lib/firebase';
+    import {auth, user, userData, docStore} from '$lib/firebase';
     import { GoogleAuthProvider, signInWithPopup, signOut} from 'firebase/auth';
-
+    import CreateAccount from '$lib/components/CreateAccount.svelte';
     async function signInWithGoogle() {
         const provider = new GoogleAuthProvider();
         const user = await signInWithPopup(auth, provider);
-        console.log(user);
-        goto('/signup/username');
     }
 </script>
 
@@ -25,10 +23,9 @@
     </div>
 </div>
 
-
 {#if $user}
     <h2>Welcome, {$user.displayName}</h2>
     <p>You are logged in</p>
 {:else}
-    <button on:click={signInWithGoogle} class="btn btn-primary mt-6 mx-auto">Sign in with Google</button>
+    <CreateAccount />
 {/if}

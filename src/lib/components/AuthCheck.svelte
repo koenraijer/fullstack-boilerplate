@@ -14,8 +14,8 @@
 {#if $user}
     <slot />
 {:else}
-    <div class="flex flex-col gap-y-4">
-        <p class="font-bold text-error">You must be signed in to view this page.</p>
+    <div class="flex flex-col gap-y-4 mx-auto">
+        <p class="text-xl">🙈 There's no point looking at this page if you're not logged in!</p>
         <button on:click={signInWithGoogle} class="btn btn-primary mt-6 mx-auto">Sign in with Google</button>
     </div>
 {/if} 

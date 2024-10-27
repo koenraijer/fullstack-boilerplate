@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
     import AuthCheck from "$lib/components/AuthCheck.svelte";
     import { user, userData, storage, db } from "$lib/firebase";
     import { doc, updateDoc } from "firebase/firestore";
@@ -18,11 +19,27 @@
       await updateDoc(doc(db, "users", $user!.uid), { photoURL: url });
       uploading = false;
     }
+
+    async function completeOnboarding() {
+      await updateDoc(doc(db, "users", $user!.uid), { signupCompleted: true }); // Update the user's onboarding status
+      goto("/"); // Redirect to the home page
+    }
   </script>
   
   <AuthCheck>
-    <h2 class="card-title">Upload a Profile Photo</h2>
-  
+    <div class="flex w-full flex-row flex-nowrap justify-between">
+      <div class="w-32 flex justify-start">
+          {#if $user}
+              <a href="/signup" class="btn btn-accent">Back</a>
+          {:else}
+              <button class="btn btn-primary btn-disabled">Sign out</button>
+          {/if}
+      </div>
+      <h2 class="card-title w-fit">Upload Profile Picture</h2>
+      <div class="w-32 flex justify-end">
+          <button on:click={completeOnboarding} class="btn btn-primary" class:btn-disabled={!$user}>Finish</button>
+      </div>
+    </div>
     <form class="max-w-screen-md w-full">
       <div class="form-control w-full max-w-xs my-10 mx-auto text-center">
         <img
@@ -48,6 +65,4 @@
         {/if}
       </div>
     </form>
-  
-    <a href="/" class="btn btn-primary">Finish</a>
-  </AuthCheck>
+</AuthCheck>
