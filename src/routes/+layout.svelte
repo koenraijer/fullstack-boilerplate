@@ -2,16 +2,17 @@
     import "../app.css";
     import {auth, user, userData} from '$lib/firebase';
     import { GoogleAuthProvider, signInWithPopup} from 'firebase/auth';
+
+    // UI 
     import { Button } from "$lib/components/ui/button";
+    import * as HoverCard from "$lib/components/ui/hover-card";
+    import { CalendarDays } from 'lucide-svelte';
+    import * as Tooltip from "$lib/components/ui/tooltip";
 
     $user;
     $userData;
 
-    async function signInWithGoogle() {
-        const provider = new GoogleAuthProvider();
-        const user = await signInWithPopup(auth, provider);
-    }
-
+    $: console.log($user);
 </script>
 
 <div class="mx-10 my-4">
@@ -20,12 +21,28 @@
             <a href="/" class="text-2xl font-bold uppercase">Fullstack</a>
             <div class="flex w-fit gap-4 items-center">
                 {#if $user}
-                    <h2 class="font-bold">{$userData?.username ? "@" : ""}{$userData?.username ?? ""}</h2>
-                    <div class="tooltip tooltip-bottom w-fit" data-tip="Dashboard">
-                        <a href="/dashboard"><img src={$userData?.photoURL ?? "/user.jpeg"} alt="profile" class="rounded-full w-8 h-8" /></a>
-                    </div>
+
+                    <HoverCard.Root>
+                        <HoverCard.Trigger><h2 class="font-bold hover:underline">{$userData?.username ? "@" : ""}{$userData?.username ?? ""}</h2></HoverCard.Trigger>
+                        <HoverCard.Content class="flex flex-col gap-2">
+                            <span>Hi, {$userData?.username ?? "User"}!</span>
+                            <span class="text-sm text-neutral-500">
+                                <CalendarDays class="w-4 h-4 inline" />
+                                Joined {$user?.metadata?.createdAt ? new Date(Number($user.metadata.createdAt)).toLocaleDateString('en-US', { year: 'numeric', month: 'long' }) : ""}
+                            </span>
+                        </HoverCard.Content>
+                    </HoverCard.Root>
+                    
+                    <Tooltip.Root>
+                        <Tooltip.Trigger>
+                            <a href="/dashboard"><img src={$userData?.photoURL ?? "/user.jpeg"} alt="profile" class="rounded-full w-8 h-8" /></a>
+                        </Tooltip.Trigger>
+                        <Tooltip.Content>
+                          <p>Dashboard</p>
+                        </Tooltip.Content>
+                    </Tooltip.Root>
                 {:else}
-                    <button on:click={signInWithGoogle} class="hover:underline">Sign In</button>
+                    <a href="/signin" class="hover:underline">Sign In</a>
                     <Button variant="default" href="/signup">Sign Up</Button>
                 {/if}
             </div>

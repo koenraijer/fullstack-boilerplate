@@ -6,7 +6,12 @@
     import { goto } from '$app/navigation';
     export let data: PageData;
     import { doc, getDoc, writeBatch} from "firebase/firestore";
-    import CreateAccount from '$lib/components/CreateAccount.svelte';
+
+    // UI
+    import * as Card from '$lib/components/ui/card';
+    import { Button } from '$lib/components/ui/button';
+    import { Input } from '$lib/components/ui/input';
+
     let username = "";
     let loading = false;
     let isAvailable = false;
@@ -79,6 +84,52 @@
         <h2>Welcome, {$user?.displayName}</h2>
 
     {#if $userData?.username}
+        <Card.Root
+        >
+            <Card.Header>
+            <Card.Title>Username</Card.Title>
+            <Card.Description>
+                Change your username here.
+            </Card.Description>
+            </Card.Header>
+            <Card.Content>
+                <form class="w-2/5" on:submit|preventDefault={confirmUsername}>
+                    <Input
+                      type="text"
+                      placeholder="Username"
+                      class="input w-fit input-bordered"
+                      bind:value={username}
+                      on:input={checkAvailability}
+                      on:keydown={preventIllegalCharacters}
+                    />
+                    <div class="my-4 min-h-16 w-full">
+                      {#if loading}
+                        <p class="text-secondary">Checking availability of @{username}...</p>
+                      {/if}
+                  
+                      {#if !isValid && isTouched}
+                        <p class="text-error text-sm">
+                          must be 3-16 characters long, alphanumeric only
+                        </p>
+                      {/if}
+                  
+                      {#if isValid && !isAvailable && !loading}
+                        <p class="text-warning text-sm">
+                          @{username} is not available
+                        </p>
+                      {/if}
+                  
+                      {#if isAvailable}
+                        <button class="btn btn-success">Confirm username @{username} </button>
+                      {/if}
+                    </div>
+                  </form>
+            </Card.Content>
+            <Card.Footer class="border-t px-6 py-4">
+            <Button>Save</Button>
+            </Card.Footer>
+        </Card.Root>
+    
           <p class="text-lg">
               Your username is <span class="text-success font-bold"
               >@{$userData.username}</span
@@ -86,43 +137,7 @@
           </p>
 
         <h2>Change Username</h2>
-        <form class="w-2/5" on:submit|preventDefault={confirmUsername}>
-          <input
-            type="text"
-            placeholder="Username"
-            class="input w-fit input-bordered"
-            bind:value={username}
-            on:input={checkAvailability}
-            on:keydown={preventIllegalCharacters}
-            class:input-error={(!isValid && isTouched)}
-            class:input-warning={isTaken}
-            class:input-success={isAvailable && isValid && !loading}
-          />
-          <div class="my-4 min-h-16 w-full">
-            {#if loading}
-              <p class="text-secondary">Checking availability of @{username}...</p>
-            {/if}
-        
-            {#if !isValid && isTouched}
-              <p class="text-error text-sm">
-                must be 3-16 characters long, alphanumeric only
-              </p>
-            {/if}
-        
-            {#if isValid && !isAvailable && !loading}
-              <p class="text-warning text-sm">
-                @{username} is not available
-              </p>
-            {/if}
-        
-            {#if isAvailable}
-              <button class="btn btn-success">Confirm username @{username} </button>
-            {/if}
-          </div>
-        </form>
-      {/if}
         <button class="btn btn-accent w-fit px-4" on:click={() => { signOut(auth); goto('/'); }}>Sign out</button>
-        </div>
-
-        <CreateAccount />
+    {/if}
+    </div>
 </AuthCheck>

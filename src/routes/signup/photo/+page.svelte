@@ -4,7 +4,13 @@
     import { user, userData, storage, db } from "$lib/firebase";
     import { doc, updateDoc } from "firebase/firestore";
     import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-  
+
+    // UI
+    import { Input } from "$lib/components/ui/input";
+    import { buttonVariants } from "$lib/components/ui/button";
+    import * as Card from "$lib/components/ui/card";
+    import { Label } from "$lib/components/ui/label";
+
     let previewURL: string;
     let uploading = false;
   
@@ -27,42 +33,39 @@
   </script>
   
   <AuthCheck>
-    <div class="flex w-full flex-row flex-nowrap justify-between">
-      <div class="w-32 flex justify-start">
-          {#if $user}
-              <a href="/signup" class="btn btn-accent">Back</a>
-          {:else}
-              <button class="btn btn-primary btn-disabled">Sign out</button>
-          {/if}
-      </div>
-      <h2 class="card-title w-fit">Upload Profile Picture</h2>
-      <div class="w-32 flex justify-end">
-          <button on:click={completeOnboarding} class="btn btn-primary" class:btn-disabled={!$user}>Finish</button>
-      </div>
-    </div>
-    <form class="max-w-screen-md w-full">
-      <div class="form-control w-full max-w-xs my-10 mx-auto text-center">
-        <img
-          src={previewURL ?? $userData?.photoURL ?? "/user.jpeg"}
-          alt="photoURL"
-          width="128"
-          height="128"
-          class="mx-auto rounded-lg"
-        />
-        <label for="photoURL" class="label">
-          <span class="label-text">Pick a file</span>
-        </label>
-        <input
-          on:change={upload}
-          name="photoURL"
-          type="file"
-          class="file-input file-input-bordered w-full max-w-xs"
-          accept="image/png, image/jpeg, image/gif, image/webp"
-        />
-        {#if uploading}
-          <p>Uploading...</p>
-          <progress class="progress progress-info w-56 mt-6"></progress>
-        {/if}
-      </div>
-    </form>
+    <Card.Root class="w-full">
+      <Card.Header>
+        <Card.Title class="text-xl">Profile Picture</Card.Title>
+        <Card.Description>Upload a profile picture for your account.</Card.Description>
+      </Card.Header>
+      <Card.Content>
+        <form class="max-w-screen-md w-full mx-auto">
+          <div class="form-control w-full max-w-xs mx-auto text-center">
+            <img
+              src={previewURL ?? $userData?.photoURL ?? "/user.jpeg"}
+              alt="photoURL"
+              width="128"
+              height="128"
+              class="mx-auto rounded-lg mb-8"
+            />
+            <Label for="photoURL">Picture</Label>
+            <Input
+              on:change={upload}
+              name="photoURL"
+              type="file"
+              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              accept="image/png, image/jpeg, image/gif, image/webp"
+            />
+            {#if uploading}
+              <p>Uploading...</p>
+              <progress class="progress progress-info w-56 mt-6"></progress>
+            {/if}
+          </div>
+        </form>
+      </Card.Content>
+      <Card.Footer class="border-t px-6 py-4 flex justify-between">
+        <a href="/signup/username" class={buttonVariants({ variant: 'outline' })}>Back</a>
+        <button on:click={completeOnboarding} class={buttonVariants({ variant: 'outline' })} class:btn-disabled={!$user}>Finish</button>
+      </Card.Footer>
+    </Card.Root>
 </AuthCheck>

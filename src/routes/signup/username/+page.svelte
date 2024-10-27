@@ -1,14 +1,20 @@
 <script lang="ts">
     import AuthCheck from "$lib/components/AuthCheck.svelte";
-    import { db, user, userData } from "$lib/firebase";
+    import { db, user, userData, auth } from "$lib/firebase";
     import { doc, getDoc, writeBatch} from "firebase/firestore";
-  
+    import { goto } from "$app/navigation";
+    import { signOut} from 'firebase/auth';
+    
+    // UI
+    import { Button, buttonVariants } from "$lib/components/ui/button";
+    import * as Card from "$lib/components/ui/card";
+    
     let username = "";
     let loading = false;
     let isAvailable = false;
   
     let debounceTimer: NodeJS.Timeout;
-  
+
     async function  checkAvailability() {
       isAvailable = false;
       clearTimeout(debounceTimer);
@@ -72,62 +78,57 @@
   
   
   <AuthCheck>
-    {#if $userData?.username}
-      <div class="flex w-full flex-row flex-nowrap justify-between">
-        <div class="w-32 flex justify-start">
-            {#if $user}
-                <a href="/signup" class="btn btn-accent" on:click={() => signOut(auth)}>Back</a>
-            {:else}
-                <button class="btn btn-primary btn-disabled">Sign out</button>
-            {/if}
-        </div>
-        <h2 class="card-title w-fit">Username</h2>
-        <div class="w-32 flex justify-end">
-            <a href="/signup/photo" class="btn btn-primary" class:btn-disabled={!$user}>Next</a>
-        </div>
-      </div>
-  
-        <p class="text-lg">
-            Your username is <span class="text-success font-bold"
-            >@{$userData.username}</span
-            >
-        </p>
-        <p class="text-sm">(Usernames cannot be changed)</p>
-    {:else}
-      <h2>Username</h2>
-      <form class="w-2/5" on:submit|preventDefault={confirmUsername}>
-        <input
-          type="text"
-          placeholder="Username"
-          class="input w-full"
-          bind:value={username}
-          on:input={checkAvailability}
-          on:keydown={preventIllegalCharacters}
-          class:input-error={(!isValid && isTouched)}
-          class:input-warning={isTaken}
-          class:input-success={isAvailable && isValid && !loading}
-        />
-        <div class="my-4 min-h-16 px-8 w-full">
-          {#if loading}
-            <p class="text-secondary">Checking availability of @{username}...</p>
-          {/if}
-      
-          {#if !isValid && isTouched}
-            <p class="text-error text-sm">
-              must be 3-16 characters long, alphanumeric only
+      <Card.Root class="">
+        <Card.Header>
+          <Card.Title class="text-xl">Username</Card.Title>
+          <Card.Description>Enter a username for your account.</Card.Description>
+        </Card.Header>
+        <Card.Content class="py-10">
+          {#if $userData?.username}
+            <p class="text-lg">
+                Your username is <span class="text-success font-bold"
+                >@{$userData.username}</span
+                >
             </p>
+            <p class="text-sm">(Usernames cannot be changed)</p>
+          {:else}
+            <form class="" on:submit|preventDefault={confirmUsername}>
+              <input
+                type="text"
+                placeholder="Username"
+                class="input w-full"
+                bind:value={username}
+                on:input={checkAvailability}
+                on:keydown={preventIllegalCharacters}
+              />
+              <div class="my-4 min-h-16 px-8 w-full">
+                {#if loading}
+                  <p class="text-secondary">Checking availability of @{username}...</p>
+                {/if}
+            
+                {#if !isValid && isTouched}
+                  <p class="text-error text-sm">
+                    must be 3-16 characters long, alphanumeric only
+                  </p>
+                {/if}
+            
+                {#if isValid && !isAvailable && !loading}
+                  <p class="text-warning text-sm">
+                    @{username} is not available
+                  </p>
+                {/if}
+            
+                {#if isAvailable}
+                  <button class="btn btn-success">Confirm username @{username} </button>
+                {/if}
+              </div>
+            </form>
           {/if}
-      
-          {#if isValid && !isAvailable && !loading}
-            <p class="text-warning text-sm">
-              @{username} is not available
-            </p>
-          {/if}
-      
-          {#if isAvailable}
-            <button class="btn btn-success">Confirm username @{username} </button>
-          {/if}
-        </div>
-      </form>
-    {/if}
+        </Card.Content>
+        <Card.Footer class="border-t px-6 py-4 flex justify-between">
+            <Button href="/signup" variant="outline">Previous</Button>
+            <Button href="/signup/photo" variant="outline">Next</Button>
+        </Card.Footer>
+      </Card.Root>
   </AuthCheck>
+
